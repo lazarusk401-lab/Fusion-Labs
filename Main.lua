@@ -14,18 +14,18 @@ end
 -- Fly Cheat
 local flySpeed = 50 -- Default speed
 local isFlying = false
+local bg, bv
 
 function startFly()
     local humanoidRootPart = character.HumanoidRootPart
     if not humanoidRootPart then return end
     
-    local bg = Instance.new("BodyGyro", humanoidRootPart)
-    local bv = Instance.new("BodyVelocity", humanoidRootPart)
-    
+    bg = Instance.new("BodyGyro", humanoidRootPart)
     bg.P = 9e4
     bg.D = 100
     bg.MaxTorque = Vector3.new(9e9, 9e9, 9e9)
     
+    bv = Instance.new("BodyVelocity", humanoidRootPart)
     bv.Velocity = Vector3.new()
     bv.MaxForce = Vector3.new(9e9, 9e9, 9e9)
     
@@ -40,13 +40,12 @@ end
 
 function stopFly()
     local humanoidRootPart = character.HumanoidRootPart
-    if not humanoidRootPart then return end
+    if not humanoidRootPart or not bg or not bv then return end
     
-    for _, child in pairs(humanoidRootPart:GetChildren()) do
-        if child:IsA("BodyGyro") or child:IsA("BodyVelocity") then
-            child:Destroy()
-        end
-    end
+    bg:Destroy()
+    bv:Destroy()
+    
+    isFlying = false
 end
 
 -- Speed Cheat
@@ -115,7 +114,6 @@ flyButton.MouseButton1Click:Connect(function()
         flyButton.Text = "Stop Fly"
     else
         stopFly()
-        isFlying = false
         flyButton.Text = "Start Fly"
     end
 end)
