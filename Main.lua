@@ -1,8 +1,14 @@
 -- LocalPlayer reference
 local player = game.Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Connect(function(newChar)
+local character = nil
+
+player.CharacterAdded:Connect(function(newChar)
     character = newChar
 end)
+
+if player.Character then
+    character = player.Character
+end
 
 -- Fly Cheat
 local flySpeed = 50 -- Default speed
@@ -86,7 +92,7 @@ local function disableInvisibility()
     character:MoveTo(visiblePosition)
 end
 
--- Bind GUI elements to functions
+-- GUI Integration
 local gui = script.Parent -- Assuming the script is a LocalScript parented to the ScreenGui or Frame containing the buttons
 
 if not gui then
