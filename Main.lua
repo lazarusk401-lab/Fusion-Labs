@@ -1,13 +1,14 @@
 -- LocalPlayer reference
 local player = game.Players.LocalPlayer
-local character = nil
+local character = player.Character or nil
 
 player.CharacterAdded:Connect(function(newChar)
     character = newChar
 end)
 
-if player.Character then
-    character = player.Character
+if not character then
+    warn("Character not found. Ensure this script is executed after the character has been loaded.")
+    return
 end
 
 -- Fly Cheat
@@ -53,16 +54,22 @@ local moveSpeed = 16 -- Default speed
 local isSpeedBoosted = false
 
 function startSpeedBoost()
-    character.Humanoid.WalkSpeed = moveSpeed
+    local humanoid = character.Humanoid
+    if not humanoid then return end
+    
+    humanoid.WalkSpeed = moveSpeed
     isSpeedBoosted = true
 end
 
 function stopSpeedBoost()
-    character.Humanoid.WalkSpeed = 16
+    local humanoid = character.Humanoid
+    if not humanoid then return end
+    
+    humanoid.WalkSpeed = 16 -- Assuming the default walk speed is 16
     isSpeedBoosted = false
 end
 
--- Invisibility (with teleportation trick)
+-- Invisibility Cheat
 local function enableInvisibility()
     local cam = workspace.CurrentCamera
     local invisiblePosition = Vector3.new(0, -500, 0) -- Position under the map
