@@ -89,6 +89,11 @@ end
 -- Bind GUI elements to functions
 local gui = script.Parent -- Assuming the script is a LocalScript parented to the ScreenGui or Frame containing the buttons
 
+if not gui then
+    warn("GUI not found. Ensure this LocalScript is parented to your ScreenGui or Frame.")
+    return
+end
+
 local flyButton = gui.UniversalTab.FlyButton
 flyButton.MouseButton1Click:Connect(function()
     if not isFlying then
