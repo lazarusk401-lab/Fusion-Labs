@@ -5,7 +5,6 @@ local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid
 local Window = Library.CreateWindow({
     Name = "Fusion Labs",
     Theme = "Dark",
-    Position = Enum.WindowPosition.Center,
 })
 
 -- Minimize button
@@ -26,7 +25,7 @@ minimizeButton.MouseButton1Click:Connect(function()
         isMinimized = true
     else
         -- Restore window
-        Window.Main:TweenSize(UDim2.new(0, 600, 0, 400), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.3)
+        Window.Main:TweenSize(UDim2.new(1, 0, 1, 0), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.3) -- Adjusted to fit the screen
         minimizeButton:TweenPosition(UDim2.new(0.9, -55, 0, 5), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.3)
         isMinimized = false
     end
@@ -50,7 +49,7 @@ HotkeysSection.AddKeybind({
             isMinimized = true
         else
             -- Restore window
-            Window.Main:TweenSize(UDim2.new(0, 600, 0, 400), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.3)
+            Window.Main:TweenSize(UDim2.new(1, 0, 1, 0), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.3) -- Adjusted to fit the screen
             minimizeButton:TweenPosition(UDim2.new(0.9, -55, 0, 5), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.3)
             isMinimized = false
         end
