@@ -1,165 +1,86 @@
--- Services required for our enchantments
-local UserInputService = game:GetService("UserInputService")
-local TweenService = game:GetService("TweenService")
-local Players = game:GetService("Players")
+-- Load Fusion UI Library
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/UI-Libs/main/FusionLib.lua"))()
 
--- Core Setup
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "FusionLabs_Menu"
-ScreenGui.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
-ScreenGui.ResetOnSpawn = false
+-- Create the window
+local Window = Library.CreateWindow({
+    Name = "Fusion Labs",
+    Theme = "Dark",
+    Position = Enum.WindowPosition.Center,
+})
 
--- Main rounded container window
-local MainFrame = Instance.new("Frame")
-MainFrame.Name = "MainFrame"
-MainFrame.Size = UDim2.new(0, 560, 0, 360)
-MainFrame.Position = UDim2.new(0.5, -280, 0.5, -180)
-MainFrame.BackgroundColor3 = Color3.fromRGB(18, 18, 22)
-MainFrame.BorderSizePixel = 0
-MainFrame.ClipsDescendants = true -- Essential for the minimization illusion
-MainFrame.Parent = ScreenGui
+-- Minimize button
+local minimizeButton = Instance.new("TextButton")
+minimizeButton.Size = UDim2.new(0, 50, 0, 50)
+minimizeButton.Position = UDim2.new(0.9, -55, 0, 5)
+minimizeButton.BackgroundColor3 = Color3.fromRGB(44, 47, 51)
+minimizeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+minimizeButton.Text = "-"
+minimizeButton.Parent = Window.Main
 
-local MainCorner = Instance.new("UICorner")
-MainCorner.CornerRadius = UDim.new(0, 8)
-MainCorner.Parent = MainFrame
-
--- Top Drag/Title Area (The handle we will use to move the frame)
-local DragHeader = Instance.new("Frame")
-DragHeader.Name = "DragHeader"
-DragHeader.Size = UDim2.new(1, 0, 0, 40)
-DragHeader.BackgroundTransparency = 1
-DragHeader.Parent = MainFrame
-
-local TitleLabel = Instance.new("TextLabel")
-TitleLabel.Name = "TitleLabel"
-TitleLabel.Size = UDim2.new(0, 200, 0, 40)
-TitleLabel.Position = UDim2.new(0, 16, 0, 0)
-TitleLabel.Text = "Fusion Labs"
-TitleLabel.TextColor3 = Color3.fromRGB(0, 255, 127) -- Emerald green
-TitleLabel.Font = Enum.Font.GothamBold
-TitleLabel.TextSize = 16
-TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
-TitleLabel.BackgroundTransparency = 1
-TitleLabel.Parent = DragHeader
-
--- The Minimize Button (A elegant, subtle dash)
-local MinimizeButton = Instance.new("TextButton")
-MinimizeButton.Name = "MinimizeButton"
-MinimizeButton.Size = UDim2.new(0, 30, 0, 30)
-MinimizeButton.Position = UDim2.new(1, -40, 0, 5)
-MinimizeButton.BackgroundColor3 = Color3.fromRGB(28, 28, 36)
-MinimizeButton.Text = "-"
-MinimizeButton.TextColor3 = Color3.fromRGB(200, 200, 200)
-MinimizeButton.Font = Enum.Font.GothamBold
-MinimizeButton.TextSize = 18
-MinimizeButton.Parent = DragHeader
-
-local MinCorner = Instance.new("UICorner")
-MinCorner.CornerRadius = UDim.new(0, 4)
-MinCorner.Parent = MinimizeButton
-
--- Sidebar navigation column
-local NavigationColumn = Instance.new("Frame")
-NavigationColumn.Name = "NavigationColumn"
-NavigationColumn.Size = UDim2.new(0, 140, 1, -60)
-NavigationColumn.Position = UDim2.new(0, 16, 0, 48)
-NavigationColumn.BackgroundTransparency = 1
-NavigationColumn.Parent = MainFrame
-
-local NavLayout = Instance.new("UIListLayout")
-NavLayout.Padding = UDim.new(0, 6)
-NavLayout.SortOrder = Enum.SortOrder.LayoutOrder
-NavLayout.Parent = NavigationColumn
-
--- Main interactive section container
-local DisplayPanel = Instance.new("Frame")
-DisplayPanel.Name = "DisplayPanel"
-DisplayPanel.Size = UDim2.new(1, -184, 1, -60)
-DisplayPanel.Position = UDim2.new(0, 168, 0, 48)
-DisplayPanel.BackgroundColor3 = Color3.fromRGB(24, 24, 30)
-DisplayPanel.BorderSizePixel = 0
-DisplayPanel.Parent = MainFrame
-
-local PanelCorner = Instance.new("UICorner")
-PanelCorner.CornerRadius = UDim.new(0, 6)
-PanelCorner.Parent = DisplayPanel
-
--- Tab Generation
-local function BuildMenuTab(labelName, orderIndex)
-    local TabButton = Instance.new("TextButton")
-    TabButton.Name = labelName .. "_Tab"
-    TabButton.Size = UDim2.new(1, 0, 0, 32)
-    TabButton.BackgroundColor3 = Color3.fromRGB(28, 28, 36)
-    TabButton.BorderSizePixel = 0
-    TabButton.Text = "  " .. labelName
-    TabButton.TextColor3 = Color3.fromRGB(180, 180, 190)
-    TabButton.Font = Enum.Font.GothamMedium
-    TabButton.TextSize = 13
-    TabButton.TextXAlignment = Enum.TextXAlignment.Left
-    TabButton.LayoutOrder = orderIndex
-    TabButton.Parent = NavigationColumn
-    
-    local ButtonCorner = Instance.new("UICorner")
-    ButtonCorner.CornerRadius = UDim.new(0, 4)
-    ButtonCorner.Parent = TabButton
-    return TabButton
-end
-
-local UniversalButton = BuildMenuTab("Universal", 1)
-local ESPButton       = BuildMenuTab("ESP", 2)
-local SettingsButton  = BuildMenuTab("Settings", 3)
-
---- ========================================== ---
----        Mischievous Mechanics (Scripting)   ---
---- ========================================== ---
-
--- 1. Smooth Dragging Logic
-local dragging, dragInput, dragStart, startPos
-
-local function update(input)
-    local delta = input.Position - dragStart
-    -- Linear interpolation (Lerp) creates that buttery smooth following effect
-    local targetPos = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-    TweenService:Create(MainFrame, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Position = targetPos}):Play()
-end
-
-DragHeader.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        dragging = true
-        dragStart = input.Position
-        startPos = MainFrame.Position
-        
-        input.Changed:Connect(function()
-            if input.UserInputState == Enum.UserInputState.End then
-                dragging = false
-            end
-        end)
-    end
-end)
-
-DragHeader.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-        dragInput = input
-    end
-end)
-
-UserInputService.InputChanged:Connect(function(input)
-    if input == dragInput and dragging then
-        update(input)
-    end
-end)
-
--- 2. Sleek Minimize Logic
 local isMinimized = false
-local originalSize = MainFrame.Size
+minimizeButton.MouseButton1Click:Connect(function()
+    if not isMinimized then
+        -- Minimize window
+        Window.Main:TweenSize(UDim2.new(0, 100, 0, 100), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.3)
+        minimizeButton:TweenPosition(UDim2.new(0.95, -75, 0.85, -75), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.3)
+        isMinimized = true
+    else
+        -- Restore window
+        Window.Main:TweenSize(UDim2.new(0, 600, 0, 400), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.3)
+        minimizeButton:TweenPosition(UDim2.new(0.9, -55, 0, 5), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.3)
+        isMinimized = false
+    end
+end)
 
-MinimizeButton.MouseButton1Click:Connect(function()
-    isMinimized = not isMinimized
-    
-    local targetSize = isMinimized and UDim2.new(0, 560, 0, 40) or originalSize
-    local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
-    
-    -- Animate the frame folding up or down
-    TweenService:Create(MainFrame, tweenInfo, {Size = targetSize}):Play()
-    MinimizeButton.Text = isMinimized and "+" or "-"
+-- Universal Tab
+local UniversalTab = Window.AddTab("Universal")
+
+-- Settings Tab
+local SettingsTab = Window.AddTab("Settings")
+
+local HotkeysSection = SettingsTab.AddSection("Hotkeys")
+HotkeysSection.AddKeybind({
+    Name = "Toggle Minimize",
+    Default = Enum.KeyCode.RightAlt,
+    Callback = function()
+        if not isMinimized then
+            -- Minimize window
+            Window.Main:TweenSize(UDim2.new(0, 100, 0, 100), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.3)
+            minimizeButton:TweenPosition(UDim2.new(0.95, -75, 0.85, -75), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.3)
+            isMinimized = true
+        else
+            -- Restore window
+            Window.Main:TweenSize(UDim2.new(0, 600, 0, 400), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.3)
+            minimizeButton:TweenPosition(UDim2.new(0.9, -55, 0, 5), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.3)
+            isMinimized = false
+        end
+    end,
+})
+
+-- ESP Tab
+local ESPTab = Window.AddTab("ESP")
+
+-- Add glowing effect to the UI
+Window.Main.BackgroundColor3 = Color3.fromRGB(44, 47, 51)
+for i,v in pairs(Window.Main:GetDescendants()) do
+    if v:IsA("UIStroke") then
+        v.Color = Color3.fromRGB(255, 0, 0)
+        v.Transparency = 0.8
+        v.Thickness = 2
+    end
+end
+
+-- Glow effect for minimize button
+minimizeButton.Stroke = Instance.new("UIStroke")
+minimizeButton.Stroke.Color = Color3.fromRGB(255, 0, 0)
+minimizeButton.Stroke.Transparency = 0.8
+minimizeButton.Stroke.Thickness = 2
+
+-- Enable glow effect when hovering over minimize button
+minimizeButton.MouseEnter:Connect(function()
+    minimizeButton.Stroke.Transparency = 0.6
+end)
+
+minimizeButton.MouseLeave:Connect(function()
+    minimizeButton.Stroke.Transparency = 0.8
 end)
