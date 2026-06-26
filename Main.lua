@@ -1,162 +1,84 @@
--- LocalPlayer reference
-local player = game.Players.LocalPlayer
-local character = player.Character or nil
+-- Core Setup
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "FusionLabs_Menu"
+ScreenGui.Parent = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+ScreenGui.ResetOnSpawn = false
 
-player.CharacterAdded:Connect(function(newChar)
-    character = newChar
-end)
+-- Main rounded container window from reference layout
+local MainFrame = Instance.new("Frame")
+MainFrame.Name = "MainFrame"
+MainFrame.Size = UDim2.new(0, 560, 0, 360)
+MainFrame.Position = UDim2.new(0.5, -280, 0.5, -180)
+MainFrame.BackgroundColor3 = Color3.fromRGB(18, 18, 22) -- Slate dark background
+MainFrame.BorderSizePixel = 0
+MainFrame.Parent = ScreenGui
 
-if not character then
-    warn("Character not found. Ensure this script is executed after the character has been loaded.")
-    return
+local MainCorner = Instance.new("UICorner")
+MainCorner.CornerRadius = UDim.new(0, 8)
+MainCorner.Parent = MainFrame
+
+-- Top Title Area (Updated to just "Fusion Labs")
+local TitleLabel = Instance.new("TextLabel")
+TitleLabel.Name = "TitleLabel"
+TitleLabel.Size = UDim2.new(0, 200, 0, 40)
+TitleLabel.Position = UDim2.new(0, 16, 0, 8)
+TitleLabel.Text = "Fusion Labs"
+TitleLabel.TextColor3 = Color3.fromRGB(0, 255, 127) -- Brilliant Asgardian Green Accent
+TitleLabel.Font = Enum.Font.GothamBold
+TitleLabel.TextSize = 16
+TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+TitleLabel.BackgroundTransparency = 1
+TitleLabel.Parent = MainFrame
+
+-- Sidebar layout column for tab navigation
+local NavigationColumn = Instance.new("Frame")
+NavigationColumn.Name = "NavigationColumn"
+NavigationColumn.Size = UDim2.new(0, 140, 1, -60)
+NavigationColumn.Position = UDim2.new(0, 16, 0, 48)
+NavigationColumn.BackgroundTransparency = 1
+NavigationColumn.Parent = MainFrame
+
+local NavLayout = Instance.new("UIListLayout")
+NavLayout.Padding = UDim.new(0, 6)
+NavLayout.SortOrder = Enum.SortOrder.LayoutOrder
+NavLayout.Parent = NavigationColumn
+
+-- Main interactive section container
+local DisplayPanel = Instance.new("Frame")
+DisplayPanel.Name = "DisplayPanel"
+DisplayPanel.Size = UDim2.new(1, -184, 1, -60)
+DisplayPanel.Position = UDim2.new(0, 168, 0, 48)
+DisplayPanel.BackgroundColor3 = Color3.fromRGB(24, 24, 30)
+DisplayPanel.BorderSizePixel = 0
+DisplayPanel.Parent = MainFrame
+
+local PanelCorner = Instance.new("UICorner")
+PanelCorner.CornerRadius = UDim.new(0, 6)
+PanelCorner.Parent = DisplayPanel
+
+-- Navigation button factory
+local function BuildMenuTab(labelName, orderIndex)
+    local TabButton = Instance.new("TextButton")
+    TabButton.Name = labelName .. "_Tab"
+    TabButton.Size = UDim2.new(1, 0, 0, 32)
+    TabButton.BackgroundColor3 = Color3.fromRGB(28, 28, 36)
+    TabButton.BorderSizePixel = 0
+    TabButton.Text = "  " .. labelName
+    TabButton.TextColor3 = Color3.fromRGB(180, 180, 190)
+    TabButton.Font = Enum.Font.GothamMedium
+    TabButton.TextSize = 13
+    TabButton.TextXAlignment = Enum.TextXAlignment.Left
+    TabButton.LayoutOrder = orderIndex
+    TabButton.Parent = NavigationColumn
+    
+    local ButtonCorner = Instance.new("UICorner")
+    ButtonCorner.CornerRadius = UDim.new(0, 4)
+    ButtonCorner.Parent = TabButton
+    
+    return TabButton
 end
 
--- Fly Cheat
-local flySpeed = 50 -- Default speed
-local isFlying = false
-local bg, bv
-
-function startFly()
-    local humanoidRootPart = character.HumanoidRootPart
-    if not humanoidRootPart then return end
-    
-    bg = Instance.new("BodyGyro", humanoidRootPart)
-    bg.P = 9e4
-    bg.D = 100
-    bg.MaxTorque = Vector3.new(9e9, 9e9, 9e9)
-    
-    bv = Instance.new("BodyVelocity", humanoidRootPart)
-    bv.Velocity = Vector3.new()
-    bv.MaxForce = Vector3.new(9e9, 9e9, 9e9)
-    
-    local userInputService = game:GetService("UserInputService")
-    
-    userInputService.InputBegan:Connect(function(inputObject, gameProcessedEvent)
-        if inputObject.KeyCode == Enum.KeyCode.Space and not gameProcessedEvent then
-            bv.Velocity = Vector3.new(0, flySpeed, 0)
-        end
-    end)
-end
-
-function stopFly()
-    local humanoidRootPart = character.HumanoidRootPart
-    if not humanoidRootPart or not bg or not bv then return end
-    
-    bg:Destroy()
-    bv:Destroy()
-    
-    isFlying = false
-end
-
--- Speed Cheat
-local moveSpeed = 16 -- Default speed
-local isSpeedBoosted = false
-
-function startSpeedBoost()
-    local humanoid = character.Humanoid
-    if not humanoid then return end
-    
-    humanoid.WalkSpeed = moveSpeed
-    isSpeedBoosted = true
-end
-
-function stopSpeedBoost()
-    local humanoid = character.Humanoid
-    if not humanoid then return end
-    
-    humanoid.WalkSpeed = 16 -- Assuming the default walk speed is 16
-    isSpeedBoosted = false
-end
-
--- Invisibility Cheat
-local function enableInvisibility()
-    local cam = workspace.CurrentCamera
-    local invisiblePosition = Vector3.new(0, -500, 0) -- Position under the map
-    
-    for _, part in pairs(character:GetDescendants()) do
-        if part:IsA("BasePart") and not part.Name == "HumanoidRootPart" then
-            part.Material = Enum.Material.ForceField
-            part.Color3 = Color3.new(0, 0, 0)
-        end
-    end
-    
-    character:MoveTo(invisiblePosition)
-    
-    cam.CFrame = CFrame.new(character.HumanoidRootPart.Position + Vector3.new(0, 500, 0))
-end
-
-local function disableInvisibility()
-    for _, part in pairs(character:GetDescendants()) do
-        if part:IsA("BasePart") and not part.Name == "HumanoidRootPart" then
-            part.Material = Enum.Material.Neon
-            part.Color3 = Color3.new(1, 0, 0)
-        end
-    end
-    
-    local visiblePosition = Vector3.new(character.HumanoidRootPart.Position.X, 50, character.HumanoidRootPart.Position.Z)
-    
-    character:MoveTo(visiblePosition)
-end
-
--- GUI Integration
-local gui = script.Parent -- Assuming the script is a LocalScript parented to the ScreenGui or Frame containing the buttons
-
-if not gui then
-    warn("GUI not found. Ensure this LocalScript is parented to your ScreenGui or Frame.")
-    return
-end
-
-local flyButton = gui.UniversalTab.FlyButton
-flyButton.MouseButton1Click:Connect(function()
-    if not isFlying then
-        startFly()
-        isFlying = true
-        flyButton.Text = "Stop Fly"
-    else
-        stopFly()
-        flyButton.Text = "Start Fly"
-    end
-end)
-
-local speedBoostButton = gui.UniversalTab.SpeedBoostButton
-speedBoostButton.MouseButton1Click:Connect(function()
-    if not isSpeedBoosted then
-        startSpeedBoost()
-        isSpeedBoosted = true
-        speedBoostButton.Text = "Stop Speed Boost"
-    else
-        stopSpeedBoost()
-        isSpeedBoosted = false
-        speedBoostButton.Text = "Start Speed Boost"
-    end
-end)
-
-local invisibilityButton = gui.UniversalTab.InvisibilityButton
-invisibilityButton.MouseButton1Click:Connect(function()
-    enableInvisibility()
-    invisibilityButton.Text = "Visible"
-    wait(5) -- Temporarily disable for 5 seconds to prevent spamming
-    invisibilityButton.Text = "Invisible"
-end)
-
--- Hotkey Configuration
-local userInputService = game:GetService("UserInputService")
-
-local function setHotkey(keyCode, action)
-    userInputService.InputBegan:Connect(function(inputObject, gameProcessedEvent)
-        if inputObject.KeyCode == keyCode and not gameProcessedEvent then
-            action()
-        end
-    end)
-end
-
--- Example hotkeys (you can configure these in the GUI)
-setHotkey(Enum.KeyCode.F, startFly) -- Fly Cheat
-setHotkey(Enum.KeyCode.G, enableInvisibility) -- Invisibility Cheat
-
--- Placeholder for future ESP features
-local function setupESP()
-    print("ESP Setup")
-end
-
-setupESP()
+-- Generating our master tabs
+local UniversalButton = BuildMenuTab("Universal", 1)
+local ESPButton       = BuildMenuTab("ESP", 2)
+local SettingsButton  = BuildMenuTab("Settings", 3)
