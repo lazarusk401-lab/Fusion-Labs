@@ -7,6 +7,9 @@ local Window = Library.CreateWindow({
     Theme = "Dark",
 })
 
+-- Main frame
+local MainFrame = Window.Main
+
 -- Minimize button
 local minimizeButton = Instance.new("TextButton")
 minimizeButton.Size = UDim2.new(0, 50, 0, 50)
@@ -14,7 +17,7 @@ minimizeButton.Position = UDim2.new(0.9, -55, 0, 5)
 minimizeButton.BackgroundColor3 = Color3.fromRGB(44, 47, 51)
 minimizeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 minimizeButton.Text = "-"
-minimizeButton.Parent = Window.Main
+minimizeButton.Parent = MainFrame
 
 local isMinimized = false
 minimizeButton.MouseButton1Click:Connect(function()
@@ -56,30 +59,46 @@ HotkeysSection.AddKeybind({
     end,
 })
 
--- ESP Tab
-local ESPTab = Window.AddTab("ESP")
+-- Add more sections and elements as needed
 
--- Add glowing effect to the UI
-Window.Main.BackgroundColor3 = Color3.fromRGB(44, 47, 51)
-for i,v in pairs(Window.Main:GetDescendants()) do
-    if v:IsA("UIStroke") then
-        v.Color = Color3.fromRGB(255, 0, 0)
-        v.Transparency = 0.8
-        v.Thickness = 2
-    end
+--- ========================================== ---
+---        Mischievous Mechanics (Scripting)   ---
+--- ========================================== ---
+
+-- 1. Smooth Dragging Logic
+local dragging, dragInput, dragStart, startPos
+
+local function update(input)
+    local delta = input.Position - dragStart
+    -- Linear interpolation (Lerp) creates that buttery smooth following effect
+    local targetPos = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    TweenService:Create(MainFrame, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Position = targetPos}):Play()
 end
 
--- Glow effect for minimize button
-minimizeButton.Stroke = Instance.new("UIStroke")
-minimizeButton.Stroke.Color = Color3.fromRGB(255, 0, 0)
-minimizeButton.Stroke.Transparency = 0.8
-minimizeButton.Stroke.Thickness = 2
-
--- Enable glow effect when hovering over minimize button
-minimizeButton.MouseEnter:Connect(function()
-    minimizeButton.Stroke.Transparency = 0.6
+MainFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = MainFrame.Position
+        
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
 end)
 
-minimizeButton.MouseLeave:Connect(function()
-    minimizeButton.Stroke.Transparency = 0.8
+MainFrame.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        dragInput = input
+    end
 end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        update(input)
+    end
+end)
+
+-- 2. Sleek Minimize Logic (Already handled by the button click event)
