@@ -5,13 +5,17 @@ local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
--- Clean up any old UI iterations
-if PlayerGui:FindFirstChild("FusionLabsUI") then
-    PlayerGui.FusionLabsUI:Destroy()
+-- ==========================================
+-- 0. STRIKE AND PURGE ALL PREVIOUS JANKY UI
+-- ==========================================
+for _, child in pairs(PlayerGui:GetChildren()) do
+    if child.Name == "FusionLabsUI" or child:FindFirstChild("MainFrame") then
+        child:Destroy()
+    end
 end
 
 -- ==========================================
--- 1. TERMINAL GREEN UI BRICK
+-- 1. HARD-CODED TERMINAL RED EXECUTOR FRAME
 -- ==========================================
 
 local ScreenGui = Instance.new("ScreenGui")
@@ -19,81 +23,80 @@ ScreenGui.Name = "FusionLabsUI"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = PlayerGui
 
--- Main Console Panel
+-- Main Panel
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
-MainFrame.Size = UDim2.new(0, 620, 0, 420)
-MainFrame.Position = UDim2.new(0.5, -310, 0.5, -210)
-MainFrame.BackgroundColor3 = Color3.fromRGB(5, 8, 5) -- Terminal Black-Green
+MainFrame.Size = UDim2.new(0, 600, 0, 400)
+MainFrame.Position = UDim2.new(0.5, -300, 0.5, -200)
+MainFrame.BackgroundColor3 = Color3.fromRGB(12, 10, 10) -- Pitch Off-Black
 MainFrame.BorderSizePixel = 0
 MainFrame.Parent = ScreenGui
 
 local MainCorner = Instance.new("UICorner")
-MainCorner.CornerRadius = UDim.new(0, 4) -- Sharp, industrial corners
+MainCorner.CornerRadius = UDim.new(0, 4) -- Angular hacker aesthetic
 MainCorner.Parent = MainFrame
 
--- Neon Matrix Cyber Border
-local UIStroke = Instance.new("UIStroke")
-UIStroke.Color = Color3.fromRGB(0, 255, 100) -- Toxic Neon Green
-UIStroke.Thickness = 1.5
-UIStroke.Transparency = 0.1
-UIStroke.Parent = MainFrame
+-- Crimson Neon Laser Frame Stroke
+local MainStroke = Instance.new("UIStroke")
+MainStroke.Color = Color3.fromRGB(255, 30, 60) -- Neon Red
+MainStroke.Thickness = 1.5
+MainStroke.Parent = MainFrame
 
--- Matrix Top Bar
+-- Top Bar Drag Container
 local TopBar = Instance.new("Frame")
 TopBar.Name = "TopBar"
 TopBar.Size = UDim2.new(1, 0, 0, 40)
-TopBar.BackgroundColor3 = Color3.fromRGB(10, 18, 12)
+TopBar.BackgroundColor3 = Color3.fromRGB(22, 14, 14) -- Dark Blood Red Tint
 TopBar.BorderSizePixel = 0
 TopBar.Parent = MainFrame
 
-local TopBarBorder = Instance.new("Frame")
-TopBarBorder.Size = UDim2.new(1, 0, 0, 1)
-TopBarBorder.Position = UDim2.new(0, 0, 1, 0)
-TopBarBorder.BackgroundColor3 = Color3.fromRGB(0, 180, 70)
-TopBarBorder.BorderSizePixel = 0
-TopBarBorder.Parent = TopBar
+local TopLine = Instance.new("Frame")
+TopLine.Size = UDim2.new(1, 0, 0, 1)
+TopLine.Position = UDim2.new(0, 0, 1, -1)
+TopLine.BackgroundColor3 = Color3.fromRGB(150, 20, 40)
+TopLine.BorderSizePixel = 0
+TopLine.Parent = TopBar
 
--- Console Title
+-- Code Style Header Title
 local Title = Instance.new("TextLabel")
 Title.Name = "Title"
-Title.Size = UDim2.new(0, 300, 1, 0)
-Title.Position = UDim2.new(0, 14, 0, 0)
+Title.Size = UDim2.new(0, 350, 1, 0)
+Title.Position = UDim2.new(0, 12, 0, 0)
 Title.BackgroundTransparency = 1
-Title.Text = "SYSTEM://FUSION_LABS.EXE [STATUS: ACTIVE]"
-Title.TextColor3 = Color3.fromRGB(0, 255, 120)
+Title.Text = "CRITICAL_ERROR://FUSION_LABS.BAT [CONSOLE ROOT]"
+Title.TextColor3 = Color3.fromRGB(255, 60, 80)
 Title.TextXAlignment = Enum.TextXAlignment.Left
 Title.Font = Enum.Font.Code
-Title.TextSize = 14
+Title.TextSize = 13
 Title.Parent = TopBar
 
--- Collapse/Minimize Button
+-- Console Window Exit/Minimize Icon
 local MinimizeButton = Instance.new("TextButton")
 MinimizeButton.Name = "MinimizeButton"
 MinimizeButton.Size = UDim2.new(0, 40, 0, 40)
 MinimizeButton.Position = UDim2.new(1, -40, 0, 0)
 MinimizeButton.BackgroundTransparency = 1
-MinimizeButton.Text = "[_]"
-MinimizeButton.TextColor3 = Color3.fromRGB(0, 255, 120)
+MinimizeButton.Text = "[X]"
+MinimizeButton.TextColor3 = Color3.fromRGB(255, 60, 80)
 MinimizeButton.Font = Enum.Font.Code
-MinimizeButton.TextSize = 14
+MinimizeButton.TextSize = 13
 MinimizeButton.Parent = TopBar
 
--- Fixed Sidebar Navigation
+-- Locked Sidebar Frame (Forces dropdowns inside boundaries)
 local Sidebar = Instance.new("Frame")
 Sidebar.Name = "Sidebar"
-Sidebar.Size = UDim2.new(0, 150, 1, -41)
-Sidebar.Position = UDim2.new(0, 0, 0, 41)
-Sidebar.BackgroundColor3 = Color3.fromRGB(8, 12, 8)
+Sidebar.Size = UDim2.new(0, 145, 1, -40)
+Sidebar.Position = UDim2.new(0, 0, 0, 40)
+Sidebar.BackgroundColor3 = Color3.fromRGB(16, 12, 12)
 Sidebar.BorderSizePixel = 0
 Sidebar.Parent = MainFrame
 
-local SidebarRightBorder = Instance.new("Frame")
-SidebarRightBorder.Size = UDim2.new(0, 1, 1, 0)
-SidebarRightBorder.Position = UDim2.new(1, -1, 0, 0)
-SidebarRightBorder.BackgroundColor3 = Color3.fromRGB(0, 100, 40)
-SidebarRightBorder.BorderSizePixel = 0
-SidebarRightBorder.Parent = Sidebar
+local SidebarLine = Instance.new("Frame")
+SidebarLine.Size = UDim2.new(0, 1, 1, 0)
+SidebarLine.Position = UDim2.new(1, -1, 0, 0)
+SidebarLine.BackgroundColor3 = Color3.fromRGB(80, 20, 30)
+SidebarLine.BorderSizePixel = 0
+SidebarLine.Parent = Sidebar
 
 local SidebarList = Instance.new("UIListLayout")
 SidebarList.Padding = UDim.new(0, 8)
@@ -105,26 +108,26 @@ local SidebarPadding = Instance.new("UIPadding")
 SidebarPadding.PaddingTop = UDim.new(0, 12)
 SidebarPadding.Parent = Sidebar
 
--- Dynamic Execution Display Canvas
+-- Inside Canvas Display Panel
 local DisplayCanvas = Instance.new("Frame")
 DisplayCanvas.Name = "DisplayCanvas"
-DisplayCanvas.Size = UDim2.new(1, -165, 1, -55)
-DisplayCanvas.Position = UDim2.new(0, 158, 0, 48)
+DisplayCanvas.Size = UDim2.new(1, -160, 1, -55)
+DisplayCanvas.Position = UDim2.new(0, 152, 0, 48)
 DisplayCanvas.BackgroundTransparency = 1
 DisplayCanvas.Parent = MainFrame
 
 
 -- ==========================================
--- 2. INDUSTRIAL DROPDOWN INJECTION MATRIX
+-- 2. ENCAPSULATION DROPDOWN ENGINE
 -- ==========================================
 
 local activeDropdownContainer = nil
 
 local function createDropdown(name, layoutOrder)
-    -- Explicitly parenting everything inside the master frame hierarchy structure
+    -- Root Frame hard-parented directly to internal sidebar array layout
     local DropdownFrame = Instance.new("Frame")
     DropdownFrame.Name = name .. "Dropdown"
-    DropdownFrame.Size = UDim2.new(0, 134, 0, 34)
+    DropdownFrame.Size = UDim2.new(0, 130, 0, 34)
     DropdownFrame.BackgroundTransparency = 1
     DropdownFrame.LayoutOrder = layoutOrder
     DropdownFrame.Parent = Sidebar
@@ -132,41 +135,41 @@ local function createDropdown(name, layoutOrder)
     local Trigger = Instance.new("TextButton")
     Trigger.Name = "Trigger"
     Trigger.Size = UDim2.new(1, 0, 1, 0)
-    Trigger.BackgroundColor3 = Color3.fromRGB(12, 22, 14)
-    Trigger.Text = " [+] " .. string.upper(name)
-    Trigger.TextColor3 = Color3.fromRGB(0, 200, 90)
+    Trigger.BackgroundColor3 = Color3.fromRGB(26, 16, 16)
+    Trigger.Text = " // " .. string.upper(name)
+    Trigger.TextColor3 = Color3.fromRGB(220, 70, 80)
     Trigger.Font = Enum.Font.Code
     Trigger.TextSize = 13
     Trigger.TextXAlignment = Enum.TextXAlignment.Left
     Trigger.Parent = DropdownFrame
 
     local TriggerCorner = Instance.new("UICorner")
-    TriggerCorner.CornerRadius = UDim.new(0, 3)
+    TriggerCorner.CornerRadius = UDim.new(0, 2)
     TriggerCorner.Parent = Trigger
 
     local ButtonStroke = Instance.new("UIStroke")
-    ButtonStroke.Color = Color3.fromRGB(0, 100, 40)
+    ButtonStroke.Color = Color3.fromRGB(90, 25, 30)
     ButtonStroke.Thickness = 1
     ButtonStroke.Parent = Trigger
 
-    -- Cyber Hover Matrix Actions
+    -- Interactive Matrix Glow Updates
     Trigger.MouseEnter:Connect(function()
         TweenService:Create(Trigger, TweenInfo.new(0.1), {
-            BackgroundColor3 = Color3.fromRGB(16, 36, 20),
-            TextColor3 = Color3.fromRGB(0, 255, 150)
+            BackgroundColor3 = Color3.fromRGB(40, 18, 22),
+            TextColor3 = Color3.fromRGB(255, 100, 110)
         }):Play()
-        TweenService:Create(ButtonStroke, TweenInfo.new(0.1), {Color = Color3.fromRGB(0, 255, 100)}):Play()
+        TweenService:Create(ButtonStroke, TweenInfo.new(0.1), {Color = Color3.fromRGB(255, 40, 60)}):Play()
     end)
     Trigger.MouseLeave:Connect(function()
         if activeDropdownContainer and activeDropdownContainer.Name == name .. "Container" then return end
         TweenService:Create(Trigger, TweenInfo.new(0.1), {
-            BackgroundColor3 = Color3.fromRGB(12, 22, 14),
-            TextColor3 = Color3.fromRGB(0, 200, 90)
+            BackgroundColor3 = Color3.fromRGB(26, 16, 16),
+            TextColor3 = Color3.fromRGB(220, 70, 80)
         }):Play()
-        TweenService:Create(ButtonStroke, TweenInfo.new(0.1), {Color = Color3.fromRGB(0, 100, 40)}):Play()
+        TweenService:Create(ButtonStroke, TweenInfo.new(0.1), {Color = Color3.fromRGB(90, 25, 30)}):Play()
     end)
 
-    -- Display Grid panel output for item injection
+    -- Item Container Display Port
     local Container = Instance.new("ScrollingFrame")
     Container.Name = name .. "Container"
     Container.Size = UDim2.new(1, 0, 1, 0)
@@ -175,7 +178,7 @@ local function createDropdown(name, layoutOrder)
     Container.Visible = false
     Container.CanvasSize = UDim2.new(0, 0, 0, 0)
     Container.ScrollBarThickness = 4
-    Container.ScrollBarImageColor3 = Color3.fromRGB(0, 255, 100)
+    Container.ScrollBarImageColor3 = Color3.fromRGB(255, 30, 60)
     Container.Parent = DisplayCanvas
 
     local ContainerList = Instance.new("UIListLayout")
@@ -188,7 +191,6 @@ local function createDropdown(name, layoutOrder)
     end)
 
     Trigger.MouseButton1Click:Connect(function()
-        -- Handle global tabs changes smoothly without overlap issues
         if activeDropdownContainer and activeDropdownContainer ~= Container then
             activeDropdownContainer.Visible = false
             local oldName = activeDropdownContainer.Name:gsub("Container", "Dropdown")
@@ -197,23 +199,23 @@ local function createDropdown(name, layoutOrder)
                 local oldTrigger = oldDropdown:FindFirstChild("Trigger")
                 local oldStroke = oldTrigger and oldTrigger:FindFirstChild("UIStroke")
                 if oldTrigger then 
-                    oldTrigger.Text = " [+] " .. oldTrigger.Name:gsub("Dropdown", ""):upper()
-                    TweenService:Create(oldTrigger, TweenInfo.new(0.1), {BackgroundColor3 = Color3.fromRGB(12, 22, 14), TextColor3 = Color3.fromRGB(0, 200, 90)}):Play()
+                    oldTrigger.Text = " // " .. oldTrigger.Name:gsub("Dropdown", ""):upper()
+                    TweenService:Create(oldTrigger, TweenInfo.new(0.1), {BackgroundColor3 = Color3.fromRGB(26, 16, 16), TextColor3 = Color3.fromRGB(220, 70, 80)}):Play()
                 end
-                if oldStroke then oldStroke.Color = Color3.fromRGB(0, 100, 40) end
+                if oldStroke then oldStroke.Color = Color3.fromRGB(90, 25, 30) end
             end
         end
 
         Container.Visible = not Container.Visible
         if Container.Visible then
-            Trigger.Text = " [-] " .. string.upper(name)
-            TweenService:Create(Trigger, TweenInfo.new(0.1), {BackgroundColor3 = Color3.fromRGB(20, 45, 25), TextColor3 = Color3.fromRGB(0, 255, 120)}):Play()
-            TweenService:Create(ButtonStroke, TweenInfo.new(0.1), {Color = Color3.fromRGB(0, 255, 120)}):Play()
+            Trigger.Text = " >  " .. string.upper(name)
+            TweenService:Create(Trigger, TweenInfo.new(0.1), {BackgroundColor3 = Color3.fromRGB(50, 15, 20), TextColor3 = Color3.fromRGB(255, 255, 255)}):Play()
+            TweenService:Create(ButtonStroke, TweenInfo.new(0.1), {Color = Color3.fromRGB(255, 30, 60)}):Play()
             activeDropdownContainer = Container
         else
-            Trigger.Text = " [+] " .. string.upper(name)
-            TweenService:Create(Trigger, TweenInfo.new(0.1), {BackgroundColor3 = Color3.fromRGB(12, 22, 14), TextColor3 = Color3.fromRGB(0, 200, 90)}):Play()
-            TweenService:Create(ButtonStroke, TweenInfo.new(0.1), {Color = Color3.fromRGB(0, 100, 40)}):Play()
+            Trigger.Text = " // " .. string.upper(name)
+            TweenService:Create(Trigger, TweenInfo.new(0.1), {BackgroundColor3 = Color3.fromRGB(26, 16, 16), TextColor3 = Color3.fromRGB(220, 70, 80)}):Play()
+            TweenService:Create(ButtonStroke, TweenInfo.new(0.1), {Color = Color3.fromRGB(90, 25, 30)}):Play()
             if activeDropdownContainer == Container then activeDropdownContainer = nil end
         end
     end)
@@ -227,10 +229,9 @@ local GamesContainer = createDropdown("Games", 3)
 
 
 -- ==========================================
--- 3. WINDOW INTERACTION CONTROLS
+-- 3. INTERACTION CONTROLS (DRAG / MINIMIZE)
 -- ==========================================
 
--- Seamless Panel Drag Controls
 local dragging, dragInput, dragStart, startPos
 
 local function updateDrag(input)
@@ -252,7 +253,7 @@ TopBar.InputBegan:Connect(function(input)
     end
 end)
 
-TopBar.InputChanged:Connect(function(input)
+topBarInputChangedConnection = TopBar.InputChanged:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
         dragInput = input
     end
@@ -264,7 +265,6 @@ UserInputService.InputChanged:Connect(function(input)
     end
 end)
 
--- Window Minimize Execution
 local isMinimizing = false
 local originalSize = MainFrame.Size
 
@@ -279,6 +279,6 @@ MinimizeButton.MouseButton1Click:Connect(function()
         MainFrame.Size = originalSize
         Sidebar.Visible = true
         DisplayCanvas.Visible = true
-        MinimizeButton.Text = "[_]"
+        MinimizeButton.Text = "[X]"
     end
 end)
